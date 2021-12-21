@@ -17,7 +17,12 @@ eth_mining() {
 }
     
 eth_hashrate() {
-    echo "$(__parse_result "$(__request "eth_hashrate")")"
+    local response="$(__parse_result "$(__request "eth_hashrate")")"
+    if [ $? -eq 0 ]; then
+        echo "$(__hex_to_dec "${response}")"
+    else
+        echo "${response}"
+    fi
 }
 
 eth_accounts() {
@@ -97,8 +102,10 @@ __dec_to_hex() {
 }
 
 __to_str_arr() {
-    printf -v joined '"%s",' "$@"
-    echo "${joined%,}"
+    if [ ! $# -eq 0 ]; then
+        printf -v joined '"%s",' "$@"
+        echo "${joined%,}"
+    fi
 }
 
 
