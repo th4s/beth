@@ -60,6 +60,66 @@ eth_get_transaction_by_hash() {
     echo "$(__parse_result "$(__request "eth_getTransactionByHash" "$@")")"
 }
 
+eth_get_transaction_receipt() {
+    echo "$(__parse_result "$(__request "eth_getTransactionReceipt" "$@")")"
+}
+
+eth_get_storage_at() {
+    echo "$(__parse_result "$(__request "eth_getStorageAt" "$(__append_blocknumber 3 "$@")")")"
+}
+
+eth_get_transaction_count() {
+    local response="$(__parse_result "$(__request "eth_getTransactionCount" "$(__append_blocknumber 2 "$@")")")"
+    if test "${response#*error}" != "${response}"; then
+        echo "${response}"
+    else
+        echo "$(__hex_to_dec "${response}")"
+    fi
+}
+
+eth_get_block_by_number() {
+    echo "$(__parse_result "$(__request "eth_getBlockByNumber" "$@")")"
+}
+
+eth_get_block_transaction_count_by_hash() {
+    local response="$(__parse_result "$(__request "eth_getBlockTransactionCountByHash" "$@")")"
+    if test "${response#*error}" != "${response}"; then
+        echo "${response}"
+    else
+        echo "$(__hex_to_dec "${response}")"
+    fi
+}
+
+eth_get_block_transaction_count_by_number() {
+    local response="$(__parse_result "$(__request "eth_getBlockTransactionCountByNumber" "$(__append_blocknumber 1 "$@")")")"
+    if test "${response#*error}" != "${response}"; then
+        echo "${response}"
+    else
+        echo "$(__hex_to_dec "${response}")"
+    fi
+}
+
+eth_get_uncle_count_by_block_hash() {
+    local response="$(__parse_result "$(__request "eth_getUncleCountByBlockHash" "$@")")"
+    if test "${response#*error}" != "${response}"; then
+        echo "${response}"
+    else
+        echo "$(__hex_to_dec "${response}")"
+    fi
+}
+
+eth_get_uncle_count_by_block_number() {
+    local response="$(__parse_result "$(__request "eth_getUncleCountByBlockNumber" "$(__append_blocknumber 1 "$@")")")"
+    if test "${response#*error}" != "${response}"; then
+        echo "${response}"
+    else
+        echo "$(__hex_to_dec "${response}")"
+    fi
+}
+
+eth_get_code() {
+    echo "$(__parse_result "$(__request "eth_getCode" "$(__append_blocknumber 2 "$@")")")"
+}
 
 gwei() {
     local value
@@ -104,6 +164,8 @@ __dec_to_hex() {
 __to_str_arr() {
     if [ ! $# -eq 0 ]; then
         printf -v joined '"%s",' "$@"
+        joined=$(echo $joined | sed -e 's/\"true\"/true/g')
+        joined=$(echo $joined | sed -e 's/\"false\"/false/g')
         echo "${joined%,}"
     fi
 }
