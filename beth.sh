@@ -18,10 +18,10 @@ eth_mining() {
     
 eth_hashrate() {
     local response="$(__parse_result "$(__request "eth_hashrate")")"
-    if [ $? -eq 0 ]; then
-        echo "$(__hex_to_dec "${response}")"
-    else
+    if test "${response#*error}" != "${response}"; then
         echo "${response}"
+    else
+        echo "$(__hex_to_dec "${response}")"
     fi
 }
 
@@ -31,28 +31,28 @@ eth_accounts() {
 
 eth_gas_price() {
     local response="$(__parse_result "$(__request "eth_gasPrice")")"
-    if [ $? -eq 0 ]; then
-        echo "$(__hex_to_dec "${response}")"
-    else
+    if test "${response#*error}" != "${response}"; then
         echo "${response}"
+    else
+        echo "$(__hex_to_dec "${response}")"
     fi
 }
 
 eth_block_number() {
     local response="$(__parse_result "$(__request "eth_blockNumber")")"
-    if [ $? -eq 0 ]; then
-        echo "$(__hex_to_dec "${response}")"
-    else
+    if test "${response#*error}" != "${response}"; then
         echo "${response}"
+    else
+        echo "$(__hex_to_dec "${response}")"
     fi
 }
 
 eth_get_balance() {
     local response="$(__parse_result "$(__request "eth_getBalance" "$(__append_blocknumber 2 "$@")")")"
-    if [ $? -eq 0 ]; then
-        echo "$(__hex_to_dec "${response}")"
-    else
+    if test "${response#*error}" != "${response}"; then
         echo "${response}"
+    else
+        echo "$(__hex_to_dec "${response}")"
     fi
 }
 
@@ -94,11 +94,11 @@ __parse_result() {
 }
 
 __hex_to_dec() {
-    printf "%d\n" "${1}"
+    echo "ibase=16; $(echo ${1#0x} | tr a-f A-F)" | bc
 }
 
 __dec_to_hex() {
-    printf "0x%x\n" "${1}"
+    echo "0x$(echo "obase=16; ${1}" | bc | tr A-F a-f)" 
 }
 
 __to_str_arr() {
@@ -107,7 +107,6 @@ __to_str_arr() {
         echo "${joined%,}"
     fi
 }
-
 
 __append_blocknumber() {
     local tmp_arr=("${@:2}")
