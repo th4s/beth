@@ -213,7 +213,8 @@ __dec_to_hex() {
 
 __to_str_arr() {
     if [ ! $# -eq 0 ]; then
-        printf -v joined '"%s",' "$@"
+        # echo "$@" is a hack for parameter expansion in zsh shells
+        printf -v joined '"%s",' $(echo "$@")
         joined=$(echo $joined | sed -e 's/\"true\"/true/g')
         joined=$(echo $joined | sed -e 's/\"false\"/false/g')
         echo "${joined%,}"
@@ -250,6 +251,7 @@ __get_last_arg() {
 }
 
 __arr_start_index() {
+    # zsh starts array indexing at 1, so we need to differentiate
     if test "${ZSH_NAME#*zsh}" != "${ZSH_NAME}"; then
         echo 1
     else
