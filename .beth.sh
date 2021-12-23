@@ -24,6 +24,22 @@ eth_mining() {
     echo "$(__parse_result "$(__request "eth_mining")")"
 }
     
+eth_accounts() {
+    echo "$(__parse_result "$(__request "eth_accounts")")"
+}
+
+eth_txpool_status() {
+    echo "$(__parse_result "$(__request "txpool_status")")"
+}
+
+eth_txpool_content() {
+    echo "$(__parse_result "$(__request "txpool_content")")"
+}
+
+eth_txpool_inspect() {
+    echo "$(__parse_result "$(__request "txpool_inspect")")"
+}
+
 eth_hashrate() {
     local response="$(__parse_result "$(__request "eth_hashrate")")"
     if test "${response#*error}" != "${response}"; then
@@ -31,10 +47,6 @@ eth_hashrate() {
     else
         echo "$(__hex_to_dec "${response}")"
     fi
-}
-
-eth_accounts() {
-    echo "$(__parse_result "$(__request "eth_accounts")")"
 }
 
 eth_gas_price() {
@@ -143,10 +155,6 @@ eth_get_transaction_by_block_number_and_index() {
     echo "$(__parse_result "$(__request "eth_getTransactionByBlockNumberAndIndex" "${args[@]}")")"
 }
 
-eth_get_transaction_by_block_hash_and_index() {
-    echo "$(__parse_result "$(__request "eth_getTransactionByBlockHashAndIndex" "$1" "$(__dec_to_hex "$2")")")"
-}
-
 eth_get_uncle_by_block_hash_and_index() {
     echo "$(__parse_result "$(__request "eth_getUncleByBlockHashAndIndex" "$1" "$(__dec_to_hex "$2")")")"
 }
@@ -157,16 +165,28 @@ eth_get_uncle_by_block_number_and_index() {
     echo "$(__parse_result "$(__request "eth_getUncleByBlockNumberAndIndex" "${args[@]}")")"
 }
 
-gwei() {
+2gwei() {
     local value
     read value <<<$(cat)
     echo "scale=2;${value}/10^9" | bc
 }
 
-eth() {
+2eth() {
     local value
     read value <<<$(cat)
     echo "scale=2;${value}/10^18" | bc
+}
+
+2hex() {
+    local value
+    read value <<<$(cat)
+    echo $(__dec_to_hex ${value})
+}
+
+2dec() {
+    local value
+    read value <<<$(cat)
+    echo $(__hex_to_dec ${value})
 }
 
 __request() {
@@ -187,18 +207,6 @@ __parse_result() {
         echo "$1"
         return 1
     fi
-}
-
-2hex() {
-    local value
-    read value <<<$(cat)
-    echo $(__dec_to_hex ${value})
-}
-
-2dec() {
-    local value
-    read value <<<$(cat)
-    echo $(__hex_to_dec ${value})
 }
 
 __hex_to_dec() {
