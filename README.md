@@ -17,13 +17,13 @@ The only dependency is `curl` and some fairly widespread UNIX tools. Just do
 #### Bash
 
 ```
-cd && curl -LJO https://raw.githubusercontent.com/th4s/beth/main/.beth.sh && echo 'source "$HOME/.beth.sh"' >> .bashrc && source .bashrc
+cd && curl -sLJO https://raw.githubusercontent.com/th4s/beth/main/.beth.sh && echo 'source "$HOME/.beth.sh"' >> .bashrc && source .bashrc
 ```
 
 #### Zsh
 
 ```
-cd && curl -LJO https://raw.githubusercontent.com/th4s/beth/main/.beth.sh && echo 'source "$HOME/.beth.sh"' >> .zshrc && source .zshrc
+cd && curl -sLJO https://raw.githubusercontent.com/th4s/beth/main/.beth.sh && echo 'source "$HOME/.beth.sh"' >> .zshrc && source .zshrc
 ```
 
 That's it. You can now enter `eth_` and press `TAB` in you terminal to see the supported RPCs.
