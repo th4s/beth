@@ -151,7 +151,7 @@ eth_get_transaction_by_block_hash_and_index() {
 
 eth_get_transaction_by_block_number_and_index() {
     local args=($(__prepend_blocknumber 2 "$@"))
-    args[$((1+$(__arr_start_index)))]="$(__dec_to_hex ${args[$((1+$(__arr_start_index)))]})"
+    args[$((1+$(__is_zsh)))]="$(__dec_to_hex ${args[$((1+$(__is_zsh)))]})"
     echo "$(__parse_result "$(__request "eth_getTransactionByBlockNumberAndIndex" "${args[@]}")")"
 }
 
@@ -161,32 +161,64 @@ eth_get_uncle_by_block_hash_and_index() {
 
 eth_get_uncle_by_block_number_and_index() {
     local args=($(__prepend_blocknumber 2 "$@"))
-    args[$((1+$(__arr_start_index)))]="$(__dec_to_hex ${args[$((1+$(__arr_start_index)))]})"
+    args[$((1+$(__is_zsh)))]="$(__dec_to_hex ${args[$((1+$(__is_zsh)))]})"
     echo "$(__parse_result "$(__request "eth_getUncleByBlockNumberAndIndex" "${args[@]}")")"
 }
 
 2gwei() {
-    local value
-    read value <<<$(cat)
-    echo "scale=2;${value}/10^9" | bc
+    local values
+    if [ $(__is_zsh) -eq 1 ]; then
+        read -rA values <<<"$(cat | tr '\n,' ' ')"
+    else
+        read -ra values <<<"$(cat | tr '\n,' ' ')"
+    fi
+    for i in "${values[@]}"; do
+        if [ ! -z "$i" -a "$i" != " " ]; then
+            echo "scale=2;${i}/10^9" | bc
+        fi
+    done
 }
 
 2eth() {
-    local value
-    read value <<<$(cat)
-    echo "scale=2;${value}/10^18" | bc
+    local values
+    if [ $(__is_zsh) -eq 1 ]; then
+        read -rA values <<<"$(cat | tr '\n,' ' ')"
+    else
+        read -ra values <<<"$(cat | tr '\n,' ' ')"
+    fi
+    for i in "${values[@]}"; do
+        if [ ! -z "$i" -a "$i" != " " ]; then
+            echo "scale=2;${i}/10^18" | bc
+        fi
+    done
 }
 
 2hex() {
-    local value
-    read value <<<$(cat)
-    echo $(__dec_to_hex ${value})
+    local values
+    if [ $(__is_zsh) -eq 1 ]; then
+        read -rA values <<<"$(cat | tr '\n,' ' ')"
+    else
+        read -ra values <<<"$(cat | tr '\n,' ' ')"
+    fi
+    for i in "${values[@]}"; do
+        if [ ! -z "$i" -a "$i" != " " ]; then
+            echo $(__dec_to_hex ${i})
+        fi
+    done
 }
 
 2dec() {
-    local value
-    read value <<<$(cat)
-    echo $(__hex_to_dec ${value})
+    local values
+    if [ $(__is_zsh) -eq 1 ]; then
+        read -rA values <<<"$(cat | tr '\n,' ' ')"
+    else
+        read -ra values <<<"$(cat | tr '\n,' ' ')"
+    fi
+    for i in "${values[@]}"; do
+        if [ ! -z "$i" -a "$i" != " " ]; then
+            echo $(__hex_to_dec ${i})
+        fi
+    done
 }
 
 __request() {
@@ -235,19 +267,19 @@ __append_blocknumber() {
     if [ ! ${len} -eq ${1} ]; then
         tmp_arr+=("latest")
     elif [ "$(__get_last_arg ${tmp_arr[@]})" !=  "latest" ]; then
-        tmp_arr[$((${len}-1+$(__arr_start_index)))]=$(__dec_to_hex ${tmp_arr[$((${len}-1+$(__arr_start_index)))]})
+        tmp_arr[$((${len}-1+$(__is_zsh)))]=$(__dec_to_hex ${tmp_arr[$((${len}-1+$(__is_zsh)))]})
     fi
     echo ${tmp_arr[@]}
 }
 
 __prepend_blocknumber() {
     local tmp_arr=("${@:2}")
-    local first=${tmp_arr[$(__arr_start_index)]}
+    local first=${tmp_arr[$(__is_zsh)]}
     local len=${#tmp_arr[@]}
     if [ ! ${len} -eq ${1} ]; then
         tmp_arr=("latest" "${tmp_arr[@]}")
     elif [ "${first}" !=  "latest" ]; then
-        tmp_arr[$(__arr_start_index)]=$(__dec_to_hex ${tmp_arr[$(__arr_start_index)]})
+        tmp_arr[$(__is_zsh)]=$(__dec_to_hex ${tmp_arr[$(__is_zsh)]})
     fi
     echo ${tmp_arr[@]}
 }
@@ -258,7 +290,7 @@ __get_last_arg() {
     echo "${last}"
 }
 
-__arr_start_index() {
+__is_zsh() {
     # zsh starts array indexing at 1, so we need to differentiate
     if test "${ZSH_NAME#*zsh}" != "${ZSH_NAME}"; then
         echo 1

@@ -63,8 +63,11 @@ eth_get_balance 0x000000000000000000000000000000000000dead | 2eth
 # Query gas of a transaction
 eth_get_transaction_by_block_number_and_index latest 0 | jq .gas | 2dec
 
-# Get current block including transactions and pretty-print
-eth_get_block_by_number latest true | jq .
+# Get current block excluding transactions and pretty-print
+eth_get_block_by_number latest false | jq .
+
+# Show the 10 transactions of the most recent block containing the highest value in gwei
+eth_get_block_by_number true | jq '.transactions[].value' | 2dec | sort -nr | 2gwei | head -n10
 
 # Show all senders of transactions in the current txpool which are pending
 eth_txpool_content | jq '.pending | values[] | values[] | .from'
