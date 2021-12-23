@@ -12,6 +12,14 @@ eth_syncing() {
     echo "$(__parse_result "$(__request "eth_syncing")")"
 }
     
+eth_coinbase() {
+    echo "$(__parse_result "$(__request "eth_coinbase")")"
+}
+
+eth_protocol_version() {
+    echo "$(__parse_result "$(__request "eth_protocolVersion")")"
+}
+
 eth_mining() {
     echo "$(__parse_result "$(__request "eth_mining")")"
 }
@@ -78,7 +86,7 @@ eth_get_transaction_count() {
 }
 
 eth_get_block_by_number() {
-    echo "$(__parse_result "$(__request "eth_getBlockByNumber" "$@")")"
+    echo "$(__parse_result "$(__request "eth_getBlockByNumber"  "$(__prepend_blocknumber 2 "$@")")")"
 }
 
 eth_get_block_transaction_count_by_hash() {
@@ -121,6 +129,34 @@ eth_get_code() {
     echo "$(__parse_result "$(__request "eth_getCode" "$(__append_blocknumber 2 "$@")")")"
 }
 
+eth_get_block_by_hash() {
+    echo "$(__parse_result "$(__request "eth_getBlockByHash" "$@")")"
+}
+
+eth_get_transaction_by_block_hash_and_index() {
+    echo "$(__parse_result "$(__request "eth_getTransactionByBlockHashAndIndex" "$1" "$(__dec_to_hex "$2")")")"
+}
+
+eth_get_transaction_by_block_number_and_index() {
+    local args=($(__prepend_blocknumber 2 "$@"))
+    args[$((1+$(__arr_start_index)))]="$(__dec_to_hex ${args[$((1+$(__arr_start_index)))]})"
+    echo "$(__parse_result "$(__request "eth_getTransactionByBlockNumberAndIndex" "${args[@]}")")"
+}
+
+eth_get_transaction_by_block_hash_and_index() {
+    echo "$(__parse_result "$(__request "eth_getTransactionByBlockHashAndIndex" "$1" "$(__dec_to_hex "$2")")")"
+}
+
+eth_get_uncle_by_block_hash_and_index() {
+    echo "$(__parse_result "$(__request "eth_getUncleByBlockHashAndIndex" "$1" "$(__dec_to_hex "$2")")")"
+}
+
+eth_get_uncle_by_block_number_and_index() {
+    local args=($(__prepend_blocknumber 2 "$@"))
+    args[$((1+$(__arr_start_index)))]="$(__dec_to_hex ${args[$((1+$(__arr_start_index)))]})"
+    echo "$(__parse_result "$(__request "eth_getUncleByBlockNumberAndIndex" "${args[@]}")")"
+}
+
 gwei() {
     local value
     read value <<<$(cat)
@@ -153,6 +189,18 @@ __parse_result() {
     fi
 }
 
+2hex() {
+    local value
+    read value <<<$(cat)
+    echo $(__dec_to_hex ${value})
+}
+
+2dec() {
+    local value
+    read value <<<$(cat)
+    echo $(__hex_to_dec ${value})
+}
+
 __hex_to_dec() {
     local parsed="$(sed -e 's/\"//g' <<<"${1}")"
     echo "ibase=16; $(echo ${parsed#0x} | tr a-f A-F)" | bc
@@ -178,7 +226,19 @@ __append_blocknumber() {
     if [ ! ${len} -eq ${1} ]; then
         tmp_arr+=("latest")
     elif [ "$(__get_last_arg ${tmp_arr[@]})" !=  "latest" ]; then
-        tmp_arr[$((${len}-1))]=$(__dec_to_hex ${tmp_arr[$((${len}-1))]})
+        tmp_arr[$((${len}-1+$(__arr_start_index)))]=$(__dec_to_hex ${tmp_arr[$((${len}-1+$(__arr_start_index)))]})
+    fi
+    echo ${tmp_arr[@]}
+}
+
+__prepend_blocknumber() {
+    local tmp_arr=("${@:2}")
+    local first=${tmp_arr[$(__arr_start_index)]}
+    local len=${#tmp_arr[@]}
+    if [ ! ${len} -eq ${1} ]; then
+        tmp_arr=("latest" "${tmp_arr[@]}")
+    elif [ "${first}" !=  "latest" ]; then
+        tmp_arr[$(__arr_start_index)]=$(__dec_to_hex ${tmp_arr[$(__arr_start_index)]})
     fi
     echo ${tmp_arr[@]}
 }
@@ -187,4 +247,12 @@ __get_last_arg() {
     local last
     for last; do : ; done
     echo "${last}"
+}
+
+__arr_start_index() {
+    if test "${ZSH_NAME#*zsh}" != "${ZSH_NAME}"; then
+        echo 1
+    else
+        echo 0
+    fi
 }
