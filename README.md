@@ -54,7 +54,19 @@ in the terminal.
 # Get current block number 
 eth_block_number
 
+# Get curent gas price
+eth_gas_price | 2gwei
+
+# Query an account balance
+eth_get_balance 0x000000000000000000000000000000000000dead | 2eth
+
+# Query gas of a transaction
+eth_get_transaction_by_block_number_and_index latest 0 | jq .gas | 2dec
+
 # Get current block including transactions and pretty-print
 eth_get_block_by_number latest true | jq .
+
+# Show all senders of transactions in the current txpool which are pending
+eth_txpool_content | jq '.pending | values[] | values[] | .from'
 ```
 
