@@ -14,11 +14,19 @@ Supported are read-only RPCs, excluding filters, tx signing and that kind of stu
 
 The only dependency is `curl` and some fairly widespread UNIX tools. Just do
 
+#### Bash
+
 ```
-cd && git clone https://github.com/th4s/beth && echo "source beth/.beth.sh" >> .bashrc && source .bashrc
+cd && git clone https://github.com/th4s/beth && echo 'source "$HOME/beth/.beth.sh"' >> .bashrc && source .bashrc
 ```
 
-That's it. You can now enter `eth_` and `TAB` in you terminal to see the supported RPCs.
+#### Zsh
+
+```
+cd && git clone https://github.com/th4s/beth && echo 'source "$HOME/beth/.beth.sh"' >> .zshrc && source .zshrc
+```
+
+That's it. You can now enter `eth_` and press `TAB` in you terminal to see the supported RPCs.
 
 ## Examples
 
