@@ -146,7 +146,7 @@ __request() {
 
 __parse_result() {
     if test "${1#*result}" != "${1}"; then
-        echo "$(sed -e 's/.*"result": *\(.*\)}.*/\1/' <<<"${1}" | sed -e 's/\"//g')"
+        echo "$(sed -e 's/.*"result": *\(.*\)}.*/\1/' <<<"${1}")"
     else
         echo "$1"
         return 1
@@ -154,11 +154,13 @@ __parse_result() {
 }
 
 __hex_to_dec() {
-    echo "ibase=16; $(echo ${1#0x} | tr a-f A-F)" | bc
+    local parsed="$(sed -e 's/\"//g' <<<"${1}")"
+    echo "ibase=16; $(echo ${parsed#0x} | tr a-f A-F)" | bc
 }
 
 __dec_to_hex() {
-    echo "0x$(echo "obase=16; ${1}" | bc | tr A-F a-f)" 
+    local parsed="$(sed -e 's/\"//g' <<<"${1}")"
+    echo "0x$(echo "obase=16; ${parsed}" | bc | tr A-F a-f)" 
 }
 
 __to_str_arr() {
