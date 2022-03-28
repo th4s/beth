@@ -165,6 +165,10 @@ eth_get_uncle_by_block_number_and_index() {
     echo "$(__parse_result "$(__request "eth_getUncleByBlockNumberAndIndex" "${args[@]}")")"
 }
 
+eth_call() {
+    echo "$(__request_call "eth_call" "{\"to\":\"${1}\",\"data\":\"${2}\"}" \"latest\")"
+}
+
 2gwei() {
     local values
     if [ $(__is_zsh) -eq 1 ]; then
@@ -232,6 +236,17 @@ __request() {
         -d "{\"jsonrpc\": \"2.0\",\"method\": \"${1}\",\"params\": [$(__to_str_arr ${@:2})],\"id\": ${RANDOM}}")
 }
 
+__request_call() {
+    local curlArgs=('-H' "Content-Type: application/json")
+    if [ ! -z "${ETH_RPC_AUTH_BASIC}" ]; then
+        curlArgs+=('-H' "Authorization: Basic ${ETH_RPC_AUTH_BASIC}")
+    elif [ ! -z "${ETH_RPC_AUTH_BEARER}" ]; then
+        curlArgs+=('-H' "Authorization: Bearer ${ETH_RPC_AUTH_BEARER}")
+    fi
+    echo $(curl ${ETH_RPC_URL} -s "${curlArgs[@]}" \
+        -d "{\"jsonrpc\": \"2.0\",\"method\": \"${1}\",\"params\": ["$2","$3"],\"id\": ${RANDOM}}")
+}
+
 __parse_result() {
     if test "${1#*result}" != "${1}"; then
         echo "$(sed -e 's/.*"result": *\(.*\)}.*/\1/' <<<"${1}")"
@@ -257,6 +272,8 @@ __to_str_arr() {
         printf -v joined '"%s",' $(echo "$@")
         joined=$(echo $joined | sed -e 's/\"true\"/true/g')
         joined=$(echo $joined | sed -e 's/\"false\"/false/g')
+        joined=$(echo $joined | sed -e 's/\"{/{/g')
+        joined=$(echo $joined | sed -e 's/}\"/}/g')
         echo "${joined%,}"
     fi
 }
