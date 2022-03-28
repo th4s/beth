@@ -166,7 +166,7 @@ eth_get_uncle_by_block_number_and_index() {
 }
 
 eth_call() {
-    echo "$(__request_call "eth_call" "{\"to\":\"${1}\",\"data\":\"${2}\"}" \"latest\")"
+    echo "$(__parse_result "$(__request_call "eth_call" "{\"to\":\"${1}\",\"data\":\"${2}\"}" \"latest\")")"
 }
 
 2gwei() {
