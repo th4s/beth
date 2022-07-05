@@ -12,7 +12,7 @@ Supported are read-only RPCs, excluding filters, tx signing and that kind of stu
 
 ## Installation
 
-The only dependency is `curl` and some fairly widespread UNIX tools. Just do
+The dependencies are `curl` and `jq`, some fairly widespread UNIX tools. Just do
 
 #### Bash
 

@@ -2,6 +2,10 @@ if [ ! -x "$(command -v curl)" ]; then
     echo "Please install curl to use this script." && return
 fi
 
+if [ ! -x "$(command -v jq)" ]; then
+    echo "Please install jq to use this script." && return
+fi
+
 DEFAULT_ETH_RPC_URL="https://cloudflare-eth.com"
 
 if [ -z "${ETH_RPC_URL}" ]; then
@@ -249,7 +253,7 @@ __request_call() {
 
 __parse_result() {
     if test "${1#*result}" != "${1}"; then
-        echo "$(sed -e 's/.*"result": *\(.*\)}.*/\1/' <<<"${1}")"
+        echo "$(echo "${1}" | jq .result)"
     else
         echo "$1"
         return 1
