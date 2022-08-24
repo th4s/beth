@@ -173,6 +173,30 @@ eth_call() {
     echo "$(__parse_result "$(__request_call "eth_call" "{\"to\":\"${1}\",\"data\":\"${2}\"}" \"latest\")")"
 }
 
+# ERC20 call
+
+erc20_balance() {
+    echo "$(__parse_result "$(__request_call "eth_call" "{\"to\":\"${1}\",\"data\":\"0x70a08231000000000000000000000000${2}\"}" \"latest\")")"
+}
+
+erc20_allowance() {
+    echo "$(__parse_result "$(__request_call "eth_call" "{\"to\":\"${1}\",\"data\":\"0xdd62ed3e000000000000000000000000${2}000000000000000000000000${3}\"}" \"latest\")")"
+}
+
+2mwei() {
+    local values
+    if [ $(__is_zsh) -eq 1 ]; then
+        read -rA values <<<"$(cat | tr '\n,' ' ')"
+    else
+        read -ra values <<<"$(cat | tr '\n,' ' ')"
+    fi
+    for i in "${values[@]}"; do
+        if [ ! -z "$i" -a "$i" != " " ]; then
+            echo "scale=2;${i}/10^6" | bc
+        fi
+    done
+}
+
 2gwei() {
     local values
     if [ $(__is_zsh) -eq 1 ]; then
