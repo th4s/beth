@@ -175,6 +175,22 @@ eth_call() {
 
 # ERC20 call
 
+erc20_decimals() {
+    echo "$(__parse_result "$(__request_call "eth_call" "{\"to\":\"${1}\",\"data\":\"0x313ce567\"}" \"latest\")")"
+}
+
+erc20_name() {
+    echo "$(__parse_result "$(__request_call "eth_call" "{\"to\":\"${1}\",\"data\":\"0x06fdde03\"}" \"latest\")")"
+}
+
+erc20_symbol() {
+    echo "$(__parse_result "$(__request_call "eth_call" "{\"to\":\"${1}\",\"data\":\"0x95d89b41\"}" \"latest\")")"
+}
+
+erc20_total_supply() {
+    echo "$(__parse_result "$(__request_call "eth_call" "{\"to\":\"${1}\",\"data\":\"0x18160ddd\"}" \"latest\")")"
+}
+
 erc20_balance() {
     echo "$(__parse_result "$(__request_call "eth_call" "{\"to\":\"${1}\",\"data\":\"0x70a08231000000000000000000000000${2}\"}" \"latest\")")"
 }
