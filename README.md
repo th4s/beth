@@ -72,7 +72,7 @@ eth_get_block_by_number true | jq '.transactions[].value' | 2dec | sort -nr | 2g
 # Show all senders of transactions in the current txpool which are pending
 eth_txpool_content | jq '.pending | values[] | values[] | .from'
 
-# ERC20 balance erc20_allowance contract user
+# ERC20 balance erc20_balance contract user
 erc20_balance "0xdac17f958d2ee523a2206206994597c13d831ec7" "28c6c06298d514db089934071355e5743bf21d60" | 2dec | 2mwei
 
 # ERC20 allowance erc20_allowance contract from spender
