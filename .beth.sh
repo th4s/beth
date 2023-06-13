@@ -53,6 +53,10 @@ eth_hashrate() {
     fi
 }
 
+eth_fee_history() {
+    echo "$(__parse_result "$(__request "eth_feeHistory" "$(__insert_blocknumber 2 "$@")")")"
+}
+
 eth_gas_price() {
     local response="$(__parse_result "$(__request "eth_gasPrice")")"
     if test "${response#*error}" != "${response}"; then
@@ -318,6 +322,8 @@ __to_str_arr() {
         joined=$(echo $joined | sed -e 's/\"false\"/false/g')
         joined=$(echo $joined | sed -e 's/\"{/{/g')
         joined=$(echo $joined | sed -e 's/}\"/}/g')
+        joined=$(echo $joined | sed -e 's/\"\[/[/g')
+        joined=$(echo $joined | sed -e 's/\]\"/]/g')
         echo "${joined%,}"
     fi
 }
@@ -341,6 +347,17 @@ __prepend_blocknumber() {
         tmp_arr=("latest" "${tmp_arr[@]}")
     elif [ "${first}" !=  "latest" ]; then
         tmp_arr[$(__is_zsh)]=$(__dec_to_hex ${tmp_arr[$(__is_zsh)]})
+    fi
+    echo ${tmp_arr[@]}
+}
+
+__insert_blocknumber() {
+    local tmp_arr=("${@:2}")
+    local len=${#tmp_arr[@]}
+    if [ ${len} -lt ${1} ]; then
+        tmp_arr+=("latest")
+    elif [ "${tmp_arr[${1}]}" !=  "latest" ]; then
+        tmp_arr[${1}]=$(__dec_to_hex ${tmp_arr[$((${len}-1+$(__is_zsh)))]})
     fi
     echo ${tmp_arr[@]}
 }
